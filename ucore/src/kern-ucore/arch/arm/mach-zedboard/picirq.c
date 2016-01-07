@@ -20,6 +20,7 @@
 #define ICCEOIR			0x00000110		// End of Interrupt Register (RW)
 
 #define ICDDCR			0x00001000		// Distributor Control Register (RW)
+#define ICDISR0			0x00001080		// Interrupt Security Register 0 (RW)
 #define ICDISER0		0x00001100		// Distributor Interrupt Set Enable Register 0 (RW)
 #define ICDICER0		0x00001180		// Distributor Interrupt Clear Enable Register 0 (RW)
 #define ICDISPR0		0x00001200		// Distributor Set Pending Register 0 (RW)
@@ -102,6 +103,37 @@ void pic_init2(uint32_t base) {
 	outw(apu_base + ICCICR, 3);			// Enable CPU Interface
 	outw(apu_base + ICDDCR, 1);			// Enable Distributor
 
+}
+
+void pic_init3(uint32_t base) {
+	apu_base = base;
+	/* PPI & SGI */
+	//a. Specify which interrupts are Non-secure.
+	outw(apu_base + ICDISR0, (1 << 27) | (1 << 29)); //GT & CPU Private Timer
+	kprintf("Interrupt Security Register 0: 0x%08x\n", inw(apu_base + ICDISR0));
+	//b. Specify whether each interrupt is level-sensitive or edge-triggered.
+	//c. Specify the priority value for each interrupt.
+	//d. Enable the PPIs.
+	outw(apu_base + ICDISER0, (1 << 27) | (1 << 29)); //GT & CPU Private Timer
+	kprintf("Distributor Interrupt Set-Enable Register 0: 0x%08x\n", inw(apu_base + ICDISER0));
+	/* CPU interface */
+	//a. Set the priority mask for the interface.
+	outw(apu_base + ICCPMR, 0xff);
+	kprintf("CPU Interface Priority Mask Register: 0x%08x\n", inw(apu_base + ICCPMR));
+	//b. Set the binary point position.
+	outw(apu_base + 0x0000011C, 0); //ICCABPR: Aliased Non-secure Binary Point Register
+	kprintf("Non-secure Binary Point Register: 0x%08x\n", inw(apu_base + 0x0000011C));
+	//c. Enable signalling of interrupts by the interface.
+	outw(apu_base + ICCICR, 7);
+	kprintf("CPU Interface Control Register: 0x%08x\n", inw(apu_base + ICCICR));
+	//d. Enable the Distributor.
+	outw(apu_base + ICDDCR, 3);
+	kprintf("Distributor Control Register: 0x%08x\n", inw(apu_base + ICDDCR));
+
+	//Get Interrupt Processor Target
+	kprintf("Global Timer Interrupt Target: CPU%d\n", inw(apu_base + ICDIPTR0 + 27 & ~0x3) >> 24);
+	kprintf("CPU Private Timer Interrupt Target: CPU%d\n", (inw(apu_base + ICDIPTR0 + 29 & ~0x3) >> 8) & 0xFF);
+	kprintf("SCU Non-secure Access Control Register: 0x%03x\n", inw(apu_base + 0x0054));
 }
 
 void irq_handler() {
