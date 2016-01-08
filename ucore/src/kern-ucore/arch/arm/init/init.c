@@ -160,7 +160,7 @@ int kern_init(void)
 	_PROBE_();
 
 	intr_enable();		// enable irq interrupt
-
+	_PROBE_();clock_test();while(1);
 #ifdef UCONFIG_HAVE_LINUX_DDE_BASE
 	calibrate_delay();
 	dde_init();

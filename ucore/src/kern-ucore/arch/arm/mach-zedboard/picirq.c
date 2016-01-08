@@ -109,20 +109,21 @@ void pic_init3(uint32_t base) {
 	apu_base = base;
 	/* PPI & SGI */
 	//a. Specify which interrupts are Non-secure.
-	outw(apu_base + ICDISR0, (1 << 27) | (1 << 29)); //GT & CPU Private Timer
+	//outw(apu_base + ICDISR0, 1 << 29); //CPU Private Timer
 	kprintf("Interrupt Security Register 0: 0x%08x\n", inw(apu_base + ICDISR0));
 	//b. Specify whether each interrupt is level-sensitive or edge-triggered.
 	//c. Specify the priority value for each interrupt.
 	//d. Enable the PPIs.
-	outw(apu_base + ICDISER0, (1 << 27) | (1 << 29)); //GT & CPU Private Timer
+	outw(apu_base + ICDISER0, 1 << 29); //CPU Private Timer
 	kprintf("Distributor Interrupt Set-Enable Register 0: 0x%08x\n", inw(apu_base + ICDISER0));
 	/* CPU interface */
 	//a. Set the priority mask for the interface.
 	outw(apu_base + ICCPMR, 0xff);
 	kprintf("CPU Interface Priority Mask Register: 0x%08x\n", inw(apu_base + ICCPMR));
 	//b. Set the binary point position.
-	outw(apu_base + 0x0000011C, 0); //ICCABPR: Aliased Non-secure Binary Point Register
+	//outw(apu_base + 0x0000011C, 0); //ICCABPR: Aliased Non-secure Binary Point Register
 	kprintf("Non-secure Binary Point Register: 0x%08x\n", inw(apu_base + 0x0000011C));
+	kprintf("Binary Point Register: 0x%08x\n", inw(apu_base + 0x00000108));
 	//c. Enable signalling of interrupts by the interface.
 	outw(apu_base + ICCICR, 7);
 	kprintf("CPU Interface Control Register: 0x%08x\n", inw(apu_base + ICCICR));
@@ -131,8 +132,8 @@ void pic_init3(uint32_t base) {
 	kprintf("Distributor Control Register: 0x%08x\n", inw(apu_base + ICDDCR));
 
 	//Get Interrupt Processor Target
-	kprintf("Global Timer Interrupt Target: CPU%d\n", inw(apu_base + ICDIPTR0 + 27 & ~0x3) >> 24);
-	kprintf("CPU Private Timer Interrupt Target: CPU%d\n", (inw(apu_base + ICDIPTR0 + 29 & ~0x3) >> 8) & 0xFF);
+	kprintf("Global Timer Interrupt Target: CPU%d\n", (inw(apu_base + ICDIPTR0 + 27 & ~0x3) >> 24) - 1);
+	kprintf("CPU Private Timer Interrupt Target: CPU%d\n", (inw(apu_base + ICDIPTR0 + 29 & ~0x3) >> 8) & 0xFF - 1);
 	kprintf("SCU Non-secure Access Control Register: 0x%03x\n", inw(apu_base + 0x0054));
 }
 

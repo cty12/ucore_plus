@@ -45,8 +45,16 @@ void clock_init_arm(uint32_t base, int irq) {
 }
 
 void clock_test() {
-	int i;
-	for (i = 0; i != 5000000; i++) {
-		kprintf("==> Timer Counter: %d", inw(timer_base + TIMER_COUNTER));
+	timer_base = 0xF8F00600;
+	kprintf("==>TIMER_LOAD: %u\n", inw(timer_base + TIMER_LOAD));
+	outw(timer_base + TIMER_LOAD, 100000000);
+	outw(timer_base + TIMER_CONTROL, 3);
+	kprintf("==>TIMER_LOAD: %u, TIMER_CONTROL: %u\n", inw(timer_base + TIMER_LOAD), inw(timer_base + TIMER_CONTROL));
+	int i, j;
+	for (i = 0; i != 100; i++) {
+		uint32_t status = inw(timer_base + TIMER_ISR);
+		kprintf("==>%d Timer Counter: %u, Int Status: %x\n", i, inw(timer_base + TIMER_COUNTER), status);
+		if (status == 1)
+			outw(timer_base + TIMER_ISR, 1);
 	}
 }
