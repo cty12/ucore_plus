@@ -137,6 +137,39 @@ void pic_init3(uint32_t base) {
 	kprintf("SCU Non-secure Access Control Register: 0x%03x\n", inw(apu_base + 0x0054));
 }
 
+void pic_init4(uint32_t base) {
+	apu_base = base;
+	int int_id, cpu_id = 1;
+	//a. Disable the Distributor.
+	outw(apu_base + ICDDCR, 0);
+	//b. Set the trigger mode
+	for (int_id = 32; int_id < MAX_IRQS_NR; int_id += 16)
+		outw(apu_base + ICDICFR0 + (int_id / 16) * 4, 0);
+	//c. Set the default priority.
+	for (int_id = 0; int_id < MAX_IRQS_NR; int_id += 4)
+		outw(apu_base + ICDIPR0 + (int_id / 4) * 4, 0xa0a0a0a0);
+	//d. cpu interface
+	for (int_id = 32; int_id < MAX_IRQS_NR; int_id += 4) {
+		cpu_id |= cpu_id << 8;
+		cpu_id |= cpu_id << 16;
+		outw(apu_base + ICDIPTR0 + (int_id / 4) * 4, cpu_id);
+	}
+	//e. Enable SPI.
+	for (int_id = 0; int_id < MAX_IRQS_NR; int_id += 32)
+		outw(apu_base + ICDICER0 + (int_id / 32) * 4, 0xffffffff);
+	//f. Enable the Distributor.
+	outw(apu_base + ICDDCR, 1);
+	
+	//a. Set the priority mask for the interface.
+	outw(apu_base + ICCPMR, 0xf0);
+	//b. Enable signalling of interrupts by the interface.
+	outw(apu_base + ICCICR, 7);
+	
+	//Enable the interrupt for the Timer at GIC
+	int int_id = 29;
+	outw(apu_base + ICDISER0 + (int_id / 32) * 4, 1 << (int_id % 32));
+}
+
 void irq_handler() {
 	uint32_t intnr = inw(apu_base + ICCIAR) & 0x3FF;
 	if(actions[intnr].handler) {
