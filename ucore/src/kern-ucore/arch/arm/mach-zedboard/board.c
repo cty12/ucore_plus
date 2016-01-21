@@ -43,11 +43,11 @@ void board_init_early()
 	serial_init(1, PER_IRQ_BASE_NONE_SPI + ZEDBOARD_UART1_IRQ);
 	// Tianyu: we place pic init here
 	//pic_init2(ZEDBOARD_APU_BASE);
-	pic_init3(ZEDBOARD_APU_BASE);
+	pic_init4(ZEDBOARD_APU_BASE);
 	kprintf("Tianyu: picirq inited! \n");
 	// Tianyu: we place clock init here
 	//clock_init_arm(ZEDBOARD_TIMER0_BASE, GLOBAL_TIMER0_IRQ + PER_IRQ_BASE_SPI);
-	//clock_test();
+	clock_init_arm(0xF8F00600, 29);
 	kprintf("Tianyu: clock inited! \n");
 }
 
