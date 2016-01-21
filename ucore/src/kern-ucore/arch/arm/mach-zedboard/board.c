@@ -49,6 +49,12 @@ void board_init_early()
 	//clock_init_arm(ZEDBOARD_TIMER0_BASE, GLOBAL_TIMER0_IRQ + PER_IRQ_BASE_SPI);
 	clock_init_arm(0xF8F00600, 29);
 	kprintf("Tianyu: clock inited! \n");
+	asm volatile ("mrs r0, cpsr;"
+			      "bic r0, r0, #0x80;"
+			      "msr cpsr, r0;":::"r0", "memory", "cc");
+	kprintf("Intr enabled!\n");
+	clock_test();
+	while(1);
 }
 
 void board_init()

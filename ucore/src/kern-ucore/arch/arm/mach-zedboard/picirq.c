@@ -166,7 +166,7 @@ void pic_init4(uint32_t base) {
 	outw(apu_base + ICCICR, 7);
 	
 	//Enable the interrupt for the Timer at GIC
-	int int_id = 29;
+	int_id = 29;
 	outw(apu_base + ICDISER0 + (int_id / 32) * 4, 1 << (int_id % 32));
 }
 

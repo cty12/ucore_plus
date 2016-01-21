@@ -11,7 +11,7 @@
 #include <kio.h>
 #include <picirq.h>
 
-#define PRESCALER_VAL 0xFF//0
+#define PRESCALER_VAL 0
 /* 10ms */
 #define LOAD_VALUE    0x1000000//(7680000/2-1)
 
@@ -44,12 +44,12 @@ void clock_init_arm(uint32_t base, int irq) {
 	//pic_enable(irq);
 }
 
-void clock_test() {
+void clock_test() {/*
 	timer_base = 0xF8F00600;
 	kprintf("==>TIMER_LOAD: %u\n", inw(timer_base + TIMER_LOAD));
 	outw(timer_base + TIMER_LOAD, 100000000);
-	outw(timer_base + TIMER_CONTROL, 3);
-	kprintf("==>TIMER_LOAD: %u, TIMER_CONTROL: %u\n", inw(timer_base + TIMER_LOAD), inw(timer_base + TIMER_CONTROL));
+	outw(timer_base + TIMER_CONTROL, 3);*/
+	kprintf("==>TIMER_LOAD: %u, TIMER_CONTROL: 0x%08x\n", inw(timer_base + TIMER_LOAD), inw(timer_base + TIMER_CONTROL));
 	int i, j;
 	for (i = 0; i != 100; i++) {
 		uint32_t status = inw(timer_base + TIMER_ISR);
