@@ -113,7 +113,7 @@ int kern_init(void)
 	//char *p = 0xc81aa000;
 //	*p = 0;
 
-	exception_vector_init();
+	exception_vector_init();kprintf("SDRAM0_START: 0x%08x, __vector_table: 0x%08x\n", SDRAM0_START, &__vector_table);
 //	pmm_init();		// init physical memory management
 //	pmm_init_ap();
 	board_init_early();

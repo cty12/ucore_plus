@@ -49,10 +49,44 @@ void board_init_early()
 	//clock_init_arm(ZEDBOARD_TIMER0_BASE, GLOBAL_TIMER0_IRQ + PER_IRQ_BASE_SPI);
 	clock_init_arm(0xF8F00600, 29);
 	kprintf("Tianyu: clock inited! \n");
+	uint32_t reg[5];
+	asm (
+		"ldr r0, =0x0\n"
+		"mcr p15, 0, r0, c12, c0, 0\n"
+	);
+	asm(
+		"mrc p15, 0, r1, c12, c0, 0\n"
+		"ldr r0, =0xc004c1d4\n"
+		"str r1, [r0]"
+	);
+	kprintf("&VBAR: 0x%08x, VBAR: 0x%08x\n", &reg[0], reg[0]);
+	asm(
+		"mrc p15, 0, r1, c1, c1, 0\n"
+		"ldr r0, =0xc004c1d8\n"
+		"str r1, [r0]"
+	);
+	kprintf("&SCR: 0x%08x, SCR: 0x%08x\n", &reg[1], reg[1]);
+	asm(
+		"mrc p15, 0, r1, c12, c0, 1\n"
+		"ldr r0, =0xc004c1dc\n"
+		"str r1, [r0]"
+	);
+	kprintf("&MVBAR: 0x%08x, MVBAR: 0x%08x\n", &reg[2], reg[2]);
+	asm(
+		"mrc p15, 0, r1, c1, c0, 0\n"
+		"ldr r0, =0xc004c1e0\n"
+		"str r1, [r0]"
+	);
+	kprintf("&SCTLR: 0x%08x, SCTLR: 0x%08x\n", &reg[3], reg[3]);
 	asm volatile ("mrs r0, cpsr;"
 			      "bic r0, r0, #0x80;"
 			      "msr cpsr, r0;":::"r0", "memory", "cc");
 	kprintf("Intr enabled!\n");
+	/*asm (
+		"mvn r0, #0\n"
+		"ldr r1, =0xE000A040\n"
+		"str r0, [r1]"
+	);*/
 	clock_test();
 	while(1);
 }
